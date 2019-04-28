@@ -66,6 +66,9 @@ class Field:
         self.prev_cells = []
         return collected
 
+    def is_big(self):
+        return self.width > 39 or self.height > 39
+
     def get_status(self):
         if self.is_locked:
             return ["",

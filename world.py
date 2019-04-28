@@ -36,12 +36,12 @@ class World:
             '1': Field('1', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 0),
             '2': Field('2', FIELD_DEF_SIZE, FIELD_DEF_SIZE * 1.5, 10),
             '3': Field('3', FIELD_DEF_SIZE * 1.5, FIELD_DEF_SIZE * 1.5, 50),
-            '4': Field('4', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 100),
-            '5': Field('5', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 500),
-            '6': Field('6', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 1000),
-            '7': Field('7', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 10000),
-            '8': Field('8', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 100000),
-            '9': Field('9', FIELD_DEF_SIZE, FIELD_DEF_SIZE, 1000000),
+            '4': Field('4', FIELD_DEF_SIZE * 2, FIELD_DEF_SIZE * 1.5, 100),
+            '5': Field('5', FIELD_DEF_SIZE * 2, FIELD_DEF_SIZE * 2, 500),
+            '6': Field('6', FIELD_DEF_SIZE * 2, FIELD_DEF_SIZE * 2.5, 1000),
+            '7': Field('7', FIELD_DEF_SIZE * 2.5, FIELD_DEF_SIZE * 2.5, 10000),
+            '8': Field('8', FIELD_DEF_SIZE * 3, FIELD_DEF_SIZE * 2.5, 100000),
+            '9': Field('9', FIELD_DEF_SIZE * 3.5, FIELD_DEF_SIZE * 3.5, 1000000),
         }
         self.fields = [
             [
@@ -285,7 +285,7 @@ class World:
                 else:
                     renderer.render_line(self.field_frames[c][r], " Field: " + field.id, 1, 1)
 
-    def render(self, renderer):
+    def render(self, renderer, renderer_small):
         if self.mode == Mode.SPLASH and time.time() < self.splash_end:
             renderer.render_splash(self.screen)
             pass
@@ -329,4 +329,7 @@ class World:
         elif self.mode == Mode.FIELD_VIEW:
             self.screen.fill((0, 0, 0))
             matching = self.field_index[self.selected]
-            matching.render(renderer, self.screen)
+            if matching.is_big:
+                matching.render(renderer_small, self.screen)
+            else:
+                matching.render(renderer, self.screen)

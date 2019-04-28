@@ -39,6 +39,7 @@ grow = False
 pygame.key.set_repeat(1, 50)
 clock = pygame.time.Clock()
 renderer = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 8, 2)
+renderer_small = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 8)
 
 
 def update(world):
@@ -50,7 +51,7 @@ def render(world, status_bar, renderer):
     status_bar.fill((0, 0, 0))
     if world.render_status():
         renderer.render_line(status_bar, world.get_status(), 5.5, 0.5)
-    world.render(renderer)
+    world.render(renderer, renderer_small)
     pygame.display.flip()
 
 

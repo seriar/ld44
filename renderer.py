@@ -37,7 +37,7 @@ def tile_map(tileset):
         'currency': tileset[51],
         'selected': tileset[46],
         'dead': tileset[61],
-        'alive': tileset[63],
+        'alive': tileset[60:63],
     }
 
 
@@ -60,9 +60,9 @@ class Renderer:
 
     def render_cells(self, screen, cells):
         screen.fill((0, 0, 0))
-        w, h = screen.get_size()
         for cell in cells:
-            screen.blit(self.tilemap['alive'], (cell.x * self.tile_size, cell.y * self.tile_size))
+            t = self.tilemap['alive'][randint(0, len(self.tilemap['alive']) - 1)]
+            screen.blit(t, (cell.x * self.tile_size, cell.y * self.tile_size))
 
     def render_image(self, screen, img, x, y):
         screen.blit(img, (x, y))
