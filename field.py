@@ -1,17 +1,22 @@
 from cell import Cell
 
+HARVEST_RATE = 3
+
 
 class Field:
-    def __init__(self, id, w, h):
+    def __init__(self, id, w, h, price):
         self.id = id
-        self.width = w
-        self.height = h
+        self.width = int(w)
+        self.height = int(h)
         self.cells = []
         self.prev_cells = []
         self.is_running = False
         self.is_locked = True
         self.income = 0
         self.age = 0
+        self.total = 0
+        self.spent = 0
+        self.price = price
 
     def add_cell(self, cell):
         self.cells.append(cell)
@@ -39,6 +44,7 @@ class Field:
                 self.age = self.age + 1
                 self.evolve()
                 gross_income = gross_income + self.trim()
+        self.total += gross_income
         return gross_income
 
     def trim(self):
@@ -51,17 +57,31 @@ class Field:
         self.income = income
         return income
 
+    def harvest(self):
+        collected = int(len(self.cells) / HARVEST_RATE)
+        self.total += collected
+        self.cells = []
+        self.income = 0
+        self.is_running = False
+        self.prev_cells = []
+        return collected
+
     def get_status(self):
         if self.is_locked:
             return ["",
                     "",
-                    "",
-                    "LOCKED"]
+                    "LOCKED",
+                    "Size:" + str(self.width) + "x" + str(self.height),
+                    "$:" + str(self.price)
+                    ]
         return [
             "Active" if self.is_running else "Inactive",
+            "Size:" + str(self.width) + "x" + str(self.height),
             "Inc:" + str(self.income),
             "Age:" + str(self.age),
-            "Cls:" + str(len(self.cells))
+            "Cls:" + str(len(self.cells)),
+            "TOT:" + str(self.total),
+            "COST:" + str(self.spent),
         ]
 
     def evolve(self):

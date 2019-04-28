@@ -67,7 +67,7 @@ class Renderer:
     def render_image(self, screen, img, x, y):
         screen.blit(img, (x, y))
 
-    def render_splash(self, screen, x, y, alpha):
+    def render_splash(self, screen):
         w, h = screen.get_size()
         iw, ih = self.splash.get_size()
         screen.fill((0, 0, 0))
@@ -77,7 +77,14 @@ class Renderer:
         ty = (y + ih) / self.tile_size + 1
         self.render_image(screen, self.splash, x + randint(0, 1), y + randint(0, 4))
         self.render_line(screen, self.splash_text, tx, ty)
-        logging.info("Setting alpha %d" % alpha)
+
+    def render_menu(self, screen, menu):
+        w, h = screen.get_size()
+        iw, ih = menu.get_size_with_selection()
+        screen.fill((0, 0, 0))
+        x = (w / self.tile_size - iw) / 2
+        y = (h / self.tile_size - ih) / 2
+        self.render_multi_line(screen, menu.get_options_with_selection(), x, y)
 
     def render_line(self, screen, text, x, y):
         # screen.fill((0, 0, 0))

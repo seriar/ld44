@@ -47,24 +47,26 @@ def update(world):
 
 
 def render(world, status_bar, renderer):
-    renderer.render_line(status_bar, world.get_status(), 5.5, 0.5)
+    status_bar.fill((0, 0, 0))
+    if world.render_status():
+        renderer.render_line(status_bar, world.get_status(), 5.5, 0.5)
     world.render(renderer)
     pygame.display.flip()
 
 
 def main():
-    # splash
-    # start/menu screen
-    sound_manager.play_intro()
     top_rect = (0, 0, WIN_TILE_SIZE * WIN_WIDTH, WIN_TILE_SIZE * 4)
     top_menu_screen = screen.subsurface(top_rect)
 
     field_rect = (0, WIN_TILE_SIZE * 4, WIN_TILE_SIZE * WIN_WIDTH, 80 * WIN_TILE_SIZE)
     field_screen = screen.subsurface(field_rect)
 
-    world = World(field_screen)
+    world = World(field_screen, sound_manager)
+    world.play_splash()
     while True:
         handle_events(world)
+        if world.should_exit:
+            terminate()
         update(world)
         render(world, top_menu_screen, renderer)
         clock.tick(FPS)
@@ -73,38 +75,12 @@ def main():
 def handle_events(world):
     global grow
     for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+        if event.type == pygame.QUIT:
             terminate()
         elif event.type == pygame.KEYDOWN:
             sound_manager.play_select()
-            if event.key == pygame.K_SPACE:
-                world.toggle_start()
-            elif event.key == pygame.K_1:
-                world.select('1')
-            elif event.key == pygame.K_2:
-                world.select('2')
-            elif event.key == pygame.K_3:
-                world.select('3')
-            elif event.key == pygame.K_4:
-                world.select('4')
-            elif event.key == pygame.K_5:
-                world.select('5')
-            elif event.key == pygame.K_6:
-                world.select('6')
-            elif event.key == pygame.K_7:
-                world.select('7')
-            elif event.key == pygame.K_8:
-                world.select('8')
-            elif event.key == pygame.K_9:
-                world.select('9')
-            elif event.key == pygame.K_BACKQUOTE:
-                world.select('')
-            elif event.key == pygame.K_v or pygame.K_RETURN:
-                world.try_view()
-            elif event.key == pygame.K_h:
-                world.try_harvest()
-            elif event.key == pygame.K_u:
-                world.try_unlock()
+            world.handle_input(event.key)
+
 
 def terminate():
     pygame.quit()
