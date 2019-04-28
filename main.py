@@ -25,14 +25,13 @@ FPS = 40
 
 sound_manager = SoundSystem()
 pygame.init()
-# logo = pygame.image.load('assets/logo32x32.png')
 logo = pygame.image.load('assets/big_skull.png')
 pygame.display.set_icon(logo)
 screen = pygame.display.set_mode((WIN_WIDTH * WIN_TILE_SIZE, WIN_HEIGHT * WIN_TILE_SIZE))
 screen.fill((0, 0, 0))
 
 
-pygame.display.set_caption('Your life is currency')
+pygame.display.set_caption('New Home. New Tomb')
 
 grow = False
 

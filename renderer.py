@@ -114,7 +114,9 @@ class Renderer:
         tx = (w / self.tile_size - len(self.splash_text)) / 2
         ty = (y + ih) / self.tile_size + 1
         self.render_image(screen, self.splash, x + randint(0, 1), y + randint(0, 4))
-        self.render_line(screen, self.splash_text, tx, ty)
+        self.render_line(screen, "Hew Home. New Tomb", tx, ty)
+        self.render_line(screen, self.splash_text, tx - 1.5, ty + 3)
+        self.render_line(screen, "by seriar 2019", tx + 15, ty + 7)
 
     def render_victory(self, screen):
         w, h = screen.get_size()

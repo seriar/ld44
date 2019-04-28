@@ -25,7 +25,7 @@ class HelpScreen:
             "Operational Manual",
             "+--------------------------------------+",
             "|SPACE  |  PAUSE                       |",
-            "|ESC    |  Back/Main menu              |",
+            "|ESC    |  Back or Main menu           |",
             "|1 to 9 |  Select Continent            |",
             "|` or ~ |  Cancel Selection            |",
             "|return |  Confirm Selection           |",
