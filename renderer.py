@@ -3,7 +3,7 @@ import logging
 from random import randint
 
 logging.basicConfig(
-    filename='log/ld44.log',
+    filename='ld44.log',
     filemode='w',
     level=logging.DEBUG,
     format='%(asctime)s %(name)-12s %(levelname)-6s %(message)s'

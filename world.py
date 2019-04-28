@@ -11,7 +11,7 @@ from help import HelpScreen
 TEN_MIL = 10000000
 
 logging.basicConfig(
-    filename='log/ld44.log',
+    filename='ld44.log',
     filemode='w',
     level=logging.DEBUG,
     format='%(asctime)s %(name)-12s %(levelname)-6s %(message)s'
@@ -272,10 +272,11 @@ class World:
             self.try_sow()
         elif key == pygame.K_u:
             self.try_unlock()
-        elif key == pygame.K_F11:
-            self.mode = Mode.GAME_OVER
-        elif key == pygame.K_F12:
-            self.mode = Mode.VICTORY
+        # If you want to win quickly
+        # elif key == pygame.K_F11:
+        #     self.mode = Mode.GAME_OVER
+        # elif key == pygame.K_F12:
+        #     self.mode = Mode.VICTORY
         elif key == pygame.K_PAUSE or key == pygame.K_SPACE:
             self.pause = not self.pause
 
