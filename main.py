@@ -1,4 +1,5 @@
 import sys
+import os
 import pygame
 import pygame.locals
 import logging
@@ -6,6 +7,10 @@ import time
 from world import World
 from renderer import Renderer
 from sound import SoundSystem
+from resmgr import get_res
+
+NAME = 'New Home, New Tomb'
+VERSION = '1.0.1'
 
 logging.basicConfig(
     filename='ld44.log',
@@ -13,6 +18,8 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s %(name)-12s %(levelname)-6s %(message)s'
 )
+
+logging.info("Starting '%s' - %s" % (NAME, VERSION))
 
 WIN_WIDTH = 80
 WIN_HEIGHT = 84
@@ -23,9 +30,16 @@ offset_y = 30
 
 FPS = 40
 
+
+tileset_file = get_res(os.path.join('assets', 'tileset8x8.png'))
+logo_file = get_res(os.path.join('assets', 'big_skull.png'))
+planet_barren_file = get_res(os.path.join('assets', 'barren.png'))
+planet_terraformed_file = get_res(os.path.join('assets', 'terraformed_1.png'))
+
+
 sound_manager = SoundSystem()
 pygame.init()
-logo = pygame.image.load('assets/big_skull.png')
+logo = pygame.image.load(logo_file)
 pygame.display.set_icon(logo)
 screen = pygame.display.set_mode((WIN_WIDTH * WIN_TILE_SIZE, WIN_HEIGHT * WIN_TILE_SIZE))
 screen.fill((0, 0, 0))
@@ -37,8 +51,11 @@ grow = False
 
 pygame.key.set_repeat(200, 100)
 clock = pygame.time.Clock()
-renderer = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 'assets/barren.png', 'assets/terraformed_1.png', 8, 2)
-renderer_small = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 'assets/barren.png', 'assets/big_skull.png', 8)
+
+
+
+renderer = Renderer(tileset_file, logo_file, planet_barren_file, planet_terraformed_file, 8, 2)
+renderer_small = Renderer(tileset_file, logo_file, planet_barren_file, planet_terraformed_file, 8)
 
 
 def update(world):

@@ -1,13 +1,23 @@
+import os
 import pygame as pg
+import logging as log
+from resmgr import get_res
 
-SELECT_SOUND = 'assets/select.wav'
-INCOME_SOUND = 'assets/income.wav'
-INTRO_SOUND = 'assets/intro2.wav'
-ERROR_SOUND = 'assets/error.wav'
+log.basicConfig(
+    filename='ld44.log',
+    filemode='w',
+    level=log.DEBUG,
+    format='%(asctime)s %(name)-12s %(levelname)-6s %(message)s'
+)
+SELECT_SOUND = get_res(os.path.join('assets', 'select.wav'))
+INCOME_SOUND = get_res(os.path.join('assets', 'income.wav'))
+INTRO_SOUND = get_res(os.path.join('assets', 'intro2.wav'))
+ERROR_SOUND = get_res(os.path.join('assets', 'error.wav'))
 
 
 class SoundSystem:
     def __init__(self):
+        log.info("Starting sound system with: %s %s %s %s" % (SELECT_SOUND, INCOME_SOUND, INTRO_SOUND, ERROR_SOUND))
         pg.mixer.pre_init(44100, -16, 1, 2048)
         pg.mixer.init()
         self.select = pg.mixer.Sound(SELECT_SOUND)
