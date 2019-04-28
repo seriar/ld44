@@ -8,6 +8,7 @@ from enum import Enum
 from menu import Menu
 from help import HelpScreen
 
+TEN_MIL = 10000000
 
 logging.basicConfig(
     filename='log/ld44.log',
@@ -30,6 +31,8 @@ class Mode(Enum):
     OVERVIEW = 4
     FIELD_VIEW = 5
     SOW_VIEW = 6
+    GAME_OVER = 7
+    VICTORY = 8
 
 
 class World:
@@ -91,6 +94,7 @@ class World:
         self.help_screen = HelpScreen()
         self.prev_mode = Mode.MAIN_MENU
         self.next_ding = 1
+        self.hunger = (100, 1)
 
     def update_ding(self):
         self.next_ding = int(self.currency * 1.1)
@@ -114,6 +118,32 @@ class World:
                 self.update_ding()
                 sound_system.play_income()
 
+            one_closed = False
+            for i in self.field_index:
+                if self.field_index[i].is_locked:
+                    one_closed = True
+                    break
+            if not one_closed or self.currency > TEN_MIL:
+                self.win()
+
+            age_to_eat, quantity_to_eat = self.hunger
+            if self.field_index['1'].age >= age_to_eat:
+                if self.currency < quantity_to_eat:
+                    self.game_over()
+                self.currency -= quantity_to_eat
+                self.update_hunger(age_to_eat)
+
+    def game_over(self):
+        self.mode = Mode.GAME_OVER
+        self.pause = True
+
+    def win(self):
+        self.mode = Mode.VICTORY
+        self.pause = True
+
+    def update_hunger(self, age_to_eat):
+        self.hunger = age_to_eat + 100, len(str(age_to_eat)) - 2
+
     def handle_input(self, key):
         if key == pygame.K_F1:
             self.to_help()
@@ -131,6 +161,8 @@ class World:
         elif self.mode == Mode.HELP:
             if key == pygame.K_ESCAPE:
                 self.mode = self.prev_mode
+        elif self.mode == Mode.VICTORY or self.mode == Mode.GAME_OVER:
+            self.handle_end_screen(key)
 
     def to_help(self):
         self.pause = True
@@ -170,6 +202,10 @@ class World:
 
     def skip_splash(self):
         self.splash_end = 0
+
+    def handle_end_screen(self, key):
+        self.should_restart = True
+        pass
 
     def handle_input_menu(self, key):
         if key == pygame.K_UP:
@@ -235,6 +271,10 @@ class World:
             self.try_sow()
         elif key == pygame.K_u:
             self.try_unlock()
+        elif key == pygame.K_F11:
+            self.mode = Mode.GAME_OVER
+        elif key == pygame.K_F12:
+            self.mode = Mode.VICTORY
         elif key == pygame.K_PAUSE or key == pygame.K_SPACE:
             self.pause = not self.pause
 
@@ -393,3 +433,11 @@ class World:
                 matching.render(renderer_small, self.screen)
             else:
                 matching.render(renderer, self.screen)
+
+        elif self.mode == Mode.GAME_OVER:
+            renderer.render_gameover(self.screen)
+            pass
+
+        elif self.mode == Mode.VICTORY:
+            renderer.render_victory(self.screen)
+            pass

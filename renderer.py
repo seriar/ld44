@@ -58,6 +58,10 @@ class Renderer:
         self.tile_size = pixels * scale
         self.splash = load_image(splash)
         self.splash_text = "Your life is currency"
+        self.gameover = load_image(splash)
+        self.gameover_text = "..."
+        self.victory = load_image(splash)
+        self.victory_text = "You won. Welcome to new Eden!"
 
     def fill(self, screen, color):
         screen.fill(color)
@@ -99,6 +103,28 @@ class Renderer:
         ty = (y + ih) / self.tile_size + 1
         self.render_image(screen, self.splash, x + randint(0, 1), y + randint(0, 4))
         self.render_line(screen, self.splash_text, tx, ty)
+
+    def render_victory(self, screen):
+        w, h = screen.get_size()
+        iw, ih = self.victory.get_size()
+        screen.fill((0, 0, 0))
+        x = (w - iw) / 2
+        y = (h - ih) / 2
+        tx = (w / self.tile_size - len(self.victory_text)) / 2
+        ty = (y + ih) / self.tile_size + 1
+        self.render_image(screen, self.victory, x + randint(0, 1), y + randint(0, 4))
+        self.render_line(screen, self.victory_text, tx, ty)
+
+    def render_gameover(self, screen):
+        w, h = screen.get_size()
+        iw, ih = self.gameover.get_size()
+        screen.fill((0, 0, 0))
+        x = (w - iw) / 2
+        y = (h - ih) / 2
+        tx = (w / self.tile_size - len(self.gameover_text)) / 2
+        ty = (y + ih) / self.tile_size + 1
+        self.render_image(screen, self.gameover, x + randint(0, 1), y + randint(0, 4))
+        self.render_line(screen, self.gameover_text, tx, ty)
 
     def render_menu(self, screen, menu):
         w, h = screen.get_size()
