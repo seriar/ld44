@@ -2,6 +2,16 @@
 
 ![alt text](https://pbs.twimg.com/media/D5HwUZiXoAEfWAc.jpg)
 
+This is a repo for my LD44 game.
+
+to run from sources you need pygame:
+```
+python -m pip install pygame
+pytnon main.py
+```
+
+Or download a compiled release...
+
 ## Ideation
 
 1. Game of Life FARM - by plots & seeds, plant seed, harvest result, rinse repeat
