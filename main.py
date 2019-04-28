@@ -38,8 +38,8 @@ grow = False
 
 pygame.key.set_repeat(200, 100)
 clock = pygame.time.Clock()
-renderer = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 8, 2)
-renderer_small = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 8)
+renderer = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 'assets/barren.png', 'assets/terraformed_1.png', 8, 2)
+renderer_small = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 'assets/barren.png', 'assets/big_skull.png', 8)
 
 
 def update(world):
