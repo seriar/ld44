@@ -180,7 +180,8 @@ class World:
         elif key == pygame.K_RIGHT:
             self.active_field.move_cursor(1, 0)
         elif key == pygame.K_RETURN:
-            self.active_field.add_sowing_cell(self.active_field.cursor)
+            if self.active_field:
+                self.active_field.add_sowing_cell(self.active_field.cursor)
         elif key == pygame.K_s:
             logging.info("Attempting to sow...")
             if self.active_field.sowing_price < self.currency:
@@ -300,7 +301,8 @@ class World:
             self.try_view()
 
     def try_view(self):
-        self.mode = Mode.FIELD_VIEW
+        if self.selected != '':
+            self.mode = Mode.FIELD_VIEW
         pass
 
     def try_harvest(self):

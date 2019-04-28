@@ -58,7 +58,8 @@ class Field:
         return self.cells, self.x, self.y
 
     def move_cursor(self, x, y):
-        self.cursor.move(x, y)
+        if 0 <= self.cursor.x + x < self.width and 0 <= self.cursor.y + y < self.height:
+            self.cursor.move(x, y)
 
     def step(self, steps=1):
         gross_income = 0
@@ -160,5 +161,6 @@ class Field:
         else:
             if self.is_sowing:
                 renderer.render_template_cells(screen_field, self.sowing, self.cursor)
+                renderer.render_line(screen, 'Planned cost: ' + str(self.sowing_price) + "$", 1, 0)
             else:
                 renderer.render_cells(screen_field, self.cells)
