@@ -66,9 +66,15 @@ class World:
         self.pause = False
         self.field_widgets = []
         self.field_frames = []
+        # test all:
+        # for i in self.field_index:
+        #     field = self.field_index[i]
+        #     field.unlock()
+        #     field.add_cells(predefined['acorn'].get_moved_cells(10, 10))
         field = self.field_index['1']
         field.unlock()
         field.add_cells(predefined['acorn'].get_moved_cells(10, 10))
+
         self.currency = 0
         self.selected = ''
         self.is_selection_changed = False
