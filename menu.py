@@ -12,9 +12,9 @@ class Menu:
     def __init__(self):
         self.selected = 0
         self.options = [
-            "START NEW",
-            "SAVE GAME",
-            "LOAD GAME",
+            "CONTINUE",
+            "RESTART",
+            "HELP",
             "ABOUT",
             "EXIT"
         ]
@@ -60,8 +60,12 @@ class Menu:
 
     def act(self):
         logging.info("Acting on selected: %d - %s" % (self.selected, self.options[self.selected]))
-        if self.selected < 3:
+        if self.selected == 0:
+            return 'cont'
+        if self.selected == 1:
             return 'new'
+        if self.selected == 2:
+            return 'help'
         elif self.selected == 3:
             return 'about'
         elif self.selected == 4:

@@ -15,10 +15,12 @@ The game is about turning a barren and hostile planet to life.
 The goal of the game is to survive and turn the planet to new Eden Garden.
 
 But this requires a sacrifice. Resources are scarce. Player must bread the 
-engineered lifeform, which is used to sustain the player and allow the growth 
+engineered CONWA-Y, which is used to sustain the player and allow the growth 
 and further terraforming.
 
-GoL is the base mechanics. The player starts with a field of 20x20, and few cells.
+CONWA-Y - Cyber-Organic Nutrient Woese Archaea - Y 
+
+Conway's GoL is the base mechanics. The player starts with a field of 20x20, and few cells.
 Player should sow the cells on the field and allow it to grow. 
 
 ### Victory:

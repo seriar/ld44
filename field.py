@@ -10,13 +10,16 @@ class Field:
         self.height = int(h)
         self.cells = []
         self.prev_cells = []
-        self.is_running = False
         self.is_locked = True
         self.income = 0
         self.age = 0
         self.total = 0
         self.spent = 0
         self.price = price
+        self.sowing = []
+        self.sowing_price = 0
+        self.is_sowing = False
+        self.cursor = Cell(0, 0)
 
     def add_cell(self, cell):
         self.cells.append(cell)
@@ -25,25 +28,44 @@ class Field:
         for cell in cells:
             self.cells.append(cell)
 
+    def start_sowing(self):
+        self.is_sowing = True
+
+    def sow(self):
+        self.cells = self.sowing
+        self.sowing = []
+        self.sowing_price = 0
+        self.cursor = Cell(0, 0)
+        self.is_sowing = False
+
+    def cancel_sowing(self):
+        self.sowing = []
+        self.sowing_price = 0
+        self.cursor = Cell(0, 0)
+        self.is_sowing = False
+
+    def add_sowing_cell(self, cell):
+        if cell in self.sowing:
+            self.sowing.remove(cell)
+        else:
+            self.sowing.append(Cell(cell.x, cell.y))
+        self.sowing_price = int(len(self.sowing) * len(self.sowing) / 2)
+
     def unlock(self):
         self.is_locked = False
-
-    def start(self):
-        self.is_running = True
-
-    def stop(self):
-        self.is_running = False
 
     def get_data(self):
         return self.cells, self.x, self.y
 
+    def move_cursor(self, x, y):
+        self.cursor.move(x, y)
+
     def step(self, steps=1):
         gross_income = 0
-        if self.is_running:
-            for step in range(steps):
-                self.age = self.age + 1
-                self.evolve()
-                gross_income = gross_income + self.trim()
+        for step in range(steps):
+            self.age = self.age + 1
+            self.evolve()
+            gross_income = gross_income + self.trim()
         self.total += gross_income
         return gross_income
 
@@ -62,7 +84,6 @@ class Field:
         self.total += collected
         self.cells = []
         self.income = 0
-        self.is_running = False
         self.prev_cells = []
         return collected
 
@@ -78,7 +99,6 @@ class Field:
                     "$:" + str(self.price)
                     ]
         return [
-            "Active" if self.is_running else "Inactive",
             "Size:" + str(self.width) + "x" + str(self.height),
             "Inc:" + str(self.income),
             "Age:" + str(self.age),
@@ -138,4 +158,7 @@ class Field:
         if self.is_locked:
             renderer.render_line(screen_field, "locked", 2, 2)
         else:
-            renderer.render_cells(screen_field, self.cells)
+            if self.is_sowing:
+                renderer.render_template_cells(screen_field, self.sowing, self.cursor)
+            else:
+                renderer.render_cells(screen_field, self.cells)

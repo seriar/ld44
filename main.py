@@ -36,7 +36,7 @@ pygame.display.set_caption('Your life is currency')
 
 grow = False
 
-pygame.key.set_repeat(1, 50)
+pygame.key.set_repeat(200, 100)
 clock = pygame.time.Clock()
 renderer = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 8, 2)
 renderer_small = Renderer("assets/tileset8x8.png", 'assets/big_skull.png', 8)
@@ -50,7 +50,7 @@ def update(world):
 def render(world, status_bar, renderer):
     status_bar.fill((0, 0, 0))
     if world.render_status():
-        renderer.render_line(status_bar, world.get_status(), 5.5, 0.5)
+        renderer.render_line(status_bar, world.get_status(), 0.5, 0.5)
     world.render(renderer, renderer_small)
     pygame.display.flip()
 
@@ -68,6 +68,10 @@ def main():
         handle_events(world)
         if world.should_exit:
             terminate()
+        if world.should_restart:
+            logging.debug("Restarting..")
+            world = World(field_screen, sound_manager)
+            world.play_splash()
         update(world)
         render(world, top_menu_screen, renderer)
         clock.tick(FPS)

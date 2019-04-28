@@ -6,6 +6,7 @@ from field import Field
 from pattern import predefined
 from enum import Enum
 from menu import Menu
+from help import HelpScreen
 
 
 logging.basicConfig(
@@ -25,8 +26,10 @@ FIELD_DEF_SIZE = 20
 class Mode(Enum):
     SPLASH = 1
     MAIN_MENU = 2
-    OVERVIEW = 3
-    FIELD_VIEW = 4
+    HELP = 3
+    OVERVIEW = 4
+    FIELD_VIEW = 5
+    SOW_VIEW = 6
 
 
 class World:
@@ -63,7 +66,7 @@ class World:
         ]
         self.screen = screen
         self.is_open = False
-        self.pause = False
+        self.pause = True
         self.field_widgets = []
         self.field_frames = []
         # test all:
@@ -83,6 +86,14 @@ class World:
         self.main_menu = Menu()
         self.sound_manager = sound_mgr
         self.should_exit = False
+        self.should_restart = False
+        self.active_field = field
+        self.help_screen = HelpScreen()
+        self.prev_mode = Mode.MAIN_MENU
+        self.next_ding = 1
+
+    def update_ding(self):
+        self.next_ding = int(self.currency * 1.1)
 
     def play_splash(self):
         self.sound_manager.play_intro()
@@ -90,30 +101,65 @@ class World:
         self.mode = Mode.SPLASH
 
     def update(self, sound_system):
+        if self.mode == Mode.SPLASH:
+            if time.time() >= self.splash_end:
+                self.mode = Mode.MAIN_MENU
         if not self.pause:
-            coin = False
-            if self.mode == Mode.SPLASH:
-                if time.time() >= self.splash_end:
-                    self.mode = Mode.MAIN_MENU
             for row in self.fields:
                 for field in row:
-                    if not field.is_locked and field.is_running:
+                    if not field.is_locked:
                         field.step()
                         self.currency += field.income
-                        if field.income > 0:
-                            coin = True
-            if coin:
+            if self.currency > self.next_ding:
+                self.update_ding()
                 sound_system.play_income()
 
     def handle_input(self, key):
+        if key == pygame.K_F1:
+            self.to_help()
+
         if self.mode == Mode.OVERVIEW:
             self.handle_input_overview(key)
         elif self.mode == Mode.FIELD_VIEW:
             self.handle_input_overview(key)
+        elif self.mode == Mode.SOW_VIEW:
+            self.handle_input_sow(key)
         elif self.mode == Mode.SPLASH:
             self.handle_input_splash(key)
         elif self.mode == Mode.MAIN_MENU:
             self.handle_input_menu(key)
+        elif self.mode == Mode.HELP:
+            if key == pygame.K_ESCAPE:
+                self.mode = self.prev_mode
+
+    def to_help(self):
+        self.pause = True
+        self.prev_mode = self.mode
+        self.is_open = False
+        self.mode = Mode.HELP
+
+    def handle_input_sow(self, key):
+        if key == pygame.K_UP:
+            self.active_field.move_cursor(0, -1)
+        elif key == pygame.K_DOWN:
+            self.active_field.move_cursor(0, 1)
+        elif key == pygame.K_LEFT:
+            self.active_field.move_cursor(-1, 0)
+        elif key == pygame.K_RIGHT:
+            self.active_field.move_cursor(1, 0)
+        elif key == pygame.K_RETURN:
+            self.active_field.add_sowing_cell(self.active_field.cursor)
+        elif key == pygame.K_s:
+            logging.info("Attempting to sow...")
+            if self.active_field.sowing_price < self.currency:
+                self.currency -= self.active_field.sowing_price
+                self.active_field.sow()
+                self.mode = Mode.FIELD_VIEW
+            else:
+                logging.info("Not enough money: needed %d; have %d" % (self.active_field.sowing_price, self.currency))
+        elif key == pygame.K_ESCAPE:
+            self.active_field.cancel_sowing()
+            self.start_overview_mode()
 
     def handle_input_splash(self, key):
         self.skip_splash()
@@ -143,9 +189,15 @@ class World:
                 logging.debug("Exiting")
                 self.should_exit = True
                 pass
+            elif 'cont' == act:
+                logging.debug("Continuing")
+                self.start_overview_mode()
+            elif 'help' == act:
+                logging.debug("Showing help")
+                self.to_help()
             elif 'new' == act:
-                logging.debug("Going to main window")
-                self.mode = Mode.OVERVIEW
+                logging.debug("Restarting")
+                self.should_restart = True
                 pass
             pass
         pass
@@ -155,8 +207,6 @@ class World:
             self.mode = Mode.MAIN_MENU
             self.pause = True
             self.is_open = False
-        elif key == pygame.K_SPACE:
-            self.toggle_start()
         elif key == pygame.K_1:
             self.select('1')
         elif key == pygame.K_2:
@@ -185,17 +235,24 @@ class World:
             self.try_sow()
         elif key == pygame.K_u:
             self.try_unlock()
+        elif key == pygame.K_PAUSE or key == pygame.K_SPACE:
+            self.pause = not self.pause
 
     def get_status(self):
-        status = "$:" + str(self.currency)
+        status = "$:" + '{:8d}'.format(self.currency)
         if self.pause:
-            status += " P"
-        return status
+            status += "   PAUSED"
+        else:
+            status += "       "
+        return status + "   PRESS F1 FOR HELP"
+
+    def start_overview_mode(self):
+        self.mode = Mode.OVERVIEW
+        self.is_open = False
 
     def select(self, id):
         if self.mode == Mode.FIELD_VIEW and id == '':
-            self.mode = Mode.OVERVIEW
-            self.is_open = False
+            self.start_overview_mode()
         if id != self.selected:
             self.selected = id
             self.is_selection_changed = True
@@ -214,26 +271,27 @@ class World:
         elif self.selected in self.field_index:
             field = self.field_index[self.selected]
             if field.is_locked:
-                logging.error("Cannot harvest locked field!")
+                logging.error("Cannot harvest locked continent!")
                 self.sound_manager.play_error()
             else:
-                logging.info("Harvesting Field %s with %d cells" % (self.selected, len(field.cells)))
+                logging.info("Harvesting continent %s with %d cells" % (self.selected, len(field.cells)))
                 self.sound_manager.play_income()
                 self.currency += field.harvest()
+                self.pause = True
 
         else:
-            logging.error("Unknown field %s!" % self.selected)
+            logging.error("Unknown continent %s!" % self.selected)
             self.sound_manager.play_error()
         pass
 
     def try_unlock(self):
         if self.selected == '':
-            logging.error("Field must be selected before unlocking")
+            logging.error("Continent must be selected before unlocking")
             self.sound_manager.play_error()
         elif self.selected in self.field_index:
             field = self.field_index[self.selected]
             if not field.is_locked:
-                logging.error("Field %s is already unlocked!" % self.selected)
+                logging.error("Continent %s is already unlocked!" % self.selected)
                 self.sound_manager.play_error()
             else:
                 if field.price < self.currency:
@@ -243,53 +301,37 @@ class World:
                     logging.error("Not enough money to unlock - %d < %d" % (self.currency, field.price))
                     self.sound_manager.play_error()
         else:
-            logging.error("Unknown field %s!" % self.selected)
+            logging.error("Unknown continent %s!" % self.selected)
             self.sound_manager.play_error()
         pass
 
     def try_sow(self):
         if self.selected == '':
-            logging.error("Field must be selected before sowing")
+            logging.error("Continent must be selected before sowing")
             self.sound_manager.play_error()
         elif self.selected in self.field_index:
             field = self.field_index[self.selected]
             if field.is_locked:
-                logging.error("Field must be unlocked before sowing")
+                logging.error("Continent must be unlocked before sowing")
                 self.sound_manager.play_error()
             elif len(field.cells) > 0:
-                logging.error("Field must be cleared before sowing")
+                logging.error("Continent must be cleared before sowing")
                 self.sound_manager.play_error()
             else:
-                # field.start_sowing()
-                self.mode = Mode.FIELD_VIEW
-                add_cells = predefined['acorn'].get_moved_cells(10, 10)
-                cost = int(len(add_cells) * len(add_cells) / 2)
-                if self.currency > cost:
-                    logging.info("Sowing %d - %d = %d" % (self.currency, cost, self.currency - cost))
-                    self.currency -= cost
-                    field.spent += cost
-                    field.add_cells(add_cells)
-                    self.sound_manager.play_income()
-                else:
-                    logging.error("Not enough money to sow - %d < %d" % (self.currency, cost))
-                    self.sound_manager.play_error()
+                field.start_sowing()
+                self.pause = True
+                self.mode = Mode.SOW_VIEW
         else:
-            logging.error("Unknown field %s!" % self.selected)
+            logging.error("Unknown continent %s!" % self.selected)
             self.sound_manager.play_error()
-
-    def toggle_start(self):
-        for row in self.fields:
-            for field in row:
-                if not field.is_locked:
-                    field.is_running = not field.is_running
 
     def render_selected(self, renderer):
         for c, row in enumerate(self.fields):
             for r, field in enumerate(row):
                 if field.id == self.selected:
-                    renderer.render_line(self.field_frames[c][r], ">Field: " + field.id, 1, 1)
+                    renderer.render_line(self.field_frames[c][r], ">Cont-t: " + field.id, 1, 1)
                 else:
-                    renderer.render_line(self.field_frames[c][r], " Field: " + field.id, 1, 1)
+                    renderer.render_line(self.field_frames[c][r], " Cont-t: " + field.id, 1, 1)
 
     def render(self, renderer, renderer_small):
         if self.mode == Mode.SPLASH and time.time() < self.splash_end:
@@ -297,6 +339,9 @@ class World:
             pass
         elif self.mode == Mode.MAIN_MENU:
             renderer.render_menu(self.screen, self.main_menu)
+            pass
+        elif self.mode == Mode.HELP:
+            renderer.render_help_screen(self.screen, self.help_screen)
             pass
         elif self.mode == Mode.OVERVIEW:
             # check state: main screen
@@ -315,7 +360,7 @@ class World:
                                 FIELD_WIDGET_SIZE * renderer.tile_size)
                         fs = self.screen.subsurface(rect)
                         renderer.fill(fs, FIELD_WIDGET_BORDER_COLOR)
-                        renderer.render_line(fs, " Field: " + field.id, 1, 1)
+                        renderer.render_line(fs, " Cont-t: " + field.id, 1, 1)
                         line_frames.append(fs)
                         line.append(fs.subsurface(renderer.tile_size, 3 * renderer.tile_size, 10 * renderer.tile_size, 8  * renderer.tile_size))
                     self.field_widgets.append(line)
@@ -335,6 +380,15 @@ class World:
         elif self.mode == Mode.FIELD_VIEW:
             self.screen.fill((0, 0, 0))
             matching = self.field_index[self.selected]
+            if matching.is_big:
+                matching.render(renderer_small, self.screen)
+            else:
+                matching.render(renderer, self.screen)
+
+        elif self.mode == Mode.SOW_VIEW:
+            self.screen.fill((0, 0, 0))
+            matching = self.field_index[self.selected]
+            self.active_field = matching
             if matching.is_big:
                 matching.render(renderer_small, self.screen)
             else:

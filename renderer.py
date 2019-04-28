@@ -32,11 +32,21 @@ def tile_map(tileset):
         'numbers': tileset[0:10],
         'alphabet': tileset[10:37],
         'space': tileset[47],
+        'exclam': tileset[48],
         'colon': tileset[38],
+        'pipe': tileset[38 + 2],
+        'plus': tileset[38 + 3],
+        'dash': tileset[38 + 4],
+        'back_quote': tileset[52],
+        'tilda': tileset[53],
         'border': tileset[62],
+        'comma': tileset[36],
+        'dot': tileset[37],
         'currency': tileset[51],
         'selected': tileset[46],
-        'dead': tileset[61],
+        'ghost': tileset[59],
+        'add': tileset[58],
+        'remove': tileset[57],
         'alive': tileset[60:63],
     }
 
@@ -64,6 +74,18 @@ class Renderer:
             t = self.tilemap['alive'][randint(0, len(self.tilemap['alive']) - 1)]
             screen.blit(t, (cell.x * self.tile_size, cell.y * self.tile_size))
 
+    def render_template_cells(self, screen, cells, cursor):
+        screen.fill((0, 0, 0))
+        for cell in cells:
+            logging.debug("Rendering ghost cell %d %d" % (cell.x, cell.y))
+            screen.blit(self.tilemap['ghost'], (cell.x * self.tile_size, cell.y * self.tile_size))
+        if cursor in cells:
+            logging.debug("Rendering remove cursor %d %d" % (cursor.x, cursor.y))
+            screen.blit(self.tilemap['remove'], (cursor.x * self.tile_size, cursor.y * self.tile_size))
+        else:
+            logging.debug("Rendering add cursor %d %d" % (cursor.x, cursor.y))
+            screen.blit(self.tilemap['add'], (cursor.x * self.tile_size, cursor.y * self.tile_size))
+
     def render_image(self, screen, img, x, y):
         screen.blit(img, (x, y))
 
@@ -86,6 +108,14 @@ class Renderer:
         y = (h / self.tile_size - ih) / 2
         self.render_multi_line(screen, menu.get_options_with_selection(), x, y)
 
+    def render_help_screen(self, screen, help):
+        w, h = screen.get_size()
+        iw, ih = help.get_size()
+        screen.fill((0, 0, 0))
+        x = (w / self.tile_size - iw) / 2
+        y = (h / self.tile_size - ih) / 2
+        self.render_multi_line(screen, help.message, x, y)
+
     def render_line(self, screen, text, x, y):
         # screen.fill((0, 0, 0))
         # limit in size
@@ -106,6 +136,22 @@ class Renderer:
                 character = self.tilemap['selected']
             elif ord(c) == ord('$'):
                 character = self.tilemap['currency']
+            elif ord(c) == ord('`'):
+                character = self.tilemap['back_quote']
+            elif ord(c) == ord('~'):
+                character = self.tilemap['tilda']
+            elif ord(c) == ord('-'):
+                character = self.tilemap['dash']
+            elif ord(c) == ord('|'):
+                character = self.tilemap['pipe']
+            elif ord(c) == ord('+'):
+                character = self.tilemap['plus']
+            elif ord(c) == ord('.'):
+                character = self.tilemap['dot']
+            elif ord(c) == ord('!'):
+                character = self.tilemap['exclam']
+            elif ord(c) == ord(','):
+                character = self.tilemap['comma']
             else:
                 character = self.tilemap['space']
             pix_x = int(cx * self.tile_size)
