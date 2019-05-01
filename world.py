@@ -145,7 +145,7 @@ class World:
         self.hunger = age_to_eat + 100, len(str(age_to_eat)) - 2
 
     def handle_input(self, key):
-        if key == pygame.K_F1:
+        if self.mode != Mode.HELP and key == pygame.K_F1:
             self.to_help()
 
         if self.mode == Mode.OVERVIEW:
@@ -286,7 +286,7 @@ class World:
         if self.pause:
             status += "   PAUSED"
         else:
-            status += "       "
+            status += "         "
         return status + "   PRESS F1 FOR HELP"
 
     def start_overview_mode(self):
