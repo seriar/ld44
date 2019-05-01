@@ -14,6 +14,9 @@ INCOME_SOUND = get_res(os.path.join('assets', 'income.wav'))
 INTRO_SOUND = get_res(os.path.join('assets', 'intro2.wav'))
 ERROR_SOUND = get_res(os.path.join('assets', 'error.wav'))
 
+MUSIC_VOLUME = 0.05
+EFFECTS_VOLUME = 0.03
+
 
 class SoundSystem:
     def __init__(self):
@@ -21,8 +24,11 @@ class SoundSystem:
         pg.mixer.pre_init(44100, -16, 1, 2048)
         pg.mixer.init()
         self.select = pg.mixer.Sound(SELECT_SOUND)
+        self.select.set_volume(EFFECTS_VOLUME)
         self.income = pg.mixer.Sound(INCOME_SOUND)
+        self.income.set_volume(EFFECTS_VOLUME)
         self.error = pg.mixer.Sound(ERROR_SOUND)
+        self.error.set_volume(EFFECTS_VOLUME)
 
     def play_select(self):
         self.select.play()
@@ -35,4 +41,5 @@ class SoundSystem:
 
     def play_intro(self):
         pg.mixer.music.load(INTRO_SOUND)
+        pg.mixer.music.set_volume(MUSIC_VOLUME)
         pg.mixer.music.play()

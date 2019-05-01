@@ -10,7 +10,7 @@ from sound import SoundSystem
 from resmgr import get_res
 
 NAME = 'New Home, New Tomb'
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 
 logging.basicConfig(
     filename='ld44.log',
