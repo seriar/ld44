@@ -190,6 +190,7 @@ class World:
                 self.mode = Mode.FIELD_VIEW
             else:
                 logging.info("Not enough money: needed %d; have %d" % (self.active_field.sowing_price, self.currency))
+                self.sound_manager.play_error()
         elif key == pygame.K_ESCAPE:
             self.active_field.cancel_sowing()
             self.start_overview_mode()
